@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -38,7 +39,6 @@ go 1.21
 		t.Fatal(err)
 	}
 
-	// Save current directory and change to temp directory
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -50,20 +50,16 @@ go 1.21
 		t.Fatal(err)
 	}
 
-	// Set up flags for enumgen
 	*typeNames = "Status"
 	*output = "status_enum.go"
 
-	// Load packages and run enumgen logic using the refactored generateAll function
 	pkgs := loadPackages([]string{"."})
 	if len(pkgs) == 0 {
 		t.Fatal("no packages loaded")
 	}
 
-	// Use the refactored generateAll function
 	generateAll(pkgs, []string{"Status"}, tmpDir)
 
-	// Verify the generated file exists and contains expected content
 	generatedContent, err := os.ReadFile("status_enum.go")
 	if err != nil {
 		t.Fatal(err)
@@ -71,7 +67,6 @@ go 1.21
 
 	generatedStr := string(generatedContent)
 
-	// Debug: print the generated content
 	t.Logf("Generated content:\n%s", generatedStr)
 
 	// Check for expected content in the generated file
@@ -90,8 +85,6 @@ go 1.21
 		}
 	}
 
-	// Verify the generated code structure matches the refactored output
-	// The new format uses the base type name (int) as the key type
 	if !strings.Contains(generatedStr, "var _StatusValues = map[int]Status{") {
 		t.Error("Generated file should contain Status values map with int keys")
 	}
@@ -100,7 +93,6 @@ go 1.21
 		t.Error("Generated file should contain GetStatus function with int parameter")
 	}
 
-	// Verify the function contains the correct return statement
 	if !strings.Contains(generatedStr, "val, ok := _StatusValues[x]") {
 		t.Error("Generated file should contain correct map lookup")
 	}
@@ -108,7 +100,6 @@ go 1.21
 		t.Error("Generated file should contain correct return statement")
 	}
 
-	// Verify the map contains the expected mappings (values as keys, names as values)
 	if !strings.Contains(generatedStr, "0: StatusPending") {
 		t.Error("Generated file should map 0 to StatusPending")
 	}
@@ -121,10 +112,8 @@ go 1.21
 }
 
 func TestStringEnumGeneration(t *testing.T) {
-	// Create temp directory with test files
 	tmpDir := t.TempDir()
 
-	// Write test enum file with string-based enum
 	enumFile := `package test
 
 type Color string
@@ -141,7 +130,6 @@ const (
 		t.Fatal(err)
 	}
 
-	// Create go.mod file for the test package
 	goModFile := `module test
 
 go 1.21
@@ -151,7 +139,6 @@ go 1.21
 		t.Fatal(err)
 	}
 
-	// Save current directory and change to temp directory
 	originalDir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -163,20 +150,16 @@ go 1.21
 		t.Fatal(err)
 	}
 
-	// Set up flags for enumgen
 	*typeNames = "Color"
 	*output = "color_enum.go"
 
-	// Load packages and run enumgen logic using the refactored generateAll function
 	pkgs := loadPackages([]string{"."})
 	if len(pkgs) == 0 {
 		t.Fatal("no packages loaded")
 	}
 
-	// Use the refactored generateAll function
 	generateAll(pkgs, []string{"Color"}, tmpDir)
 
-	// Verify the generated file exists and contains expected content
 	generatedContent, err := os.ReadFile("color_enum.go")
 	if err != nil {
 		t.Fatal(err)
@@ -184,10 +167,8 @@ go 1.21
 
 	generatedStr := string(generatedContent)
 
-	// Debug: print the generated content
 	t.Logf("Generated content:\n%s", generatedStr)
 
-	// Check for expected content in the generated file
 	expectedContents := []string{
 		"package test",
 		"_ColorValues",
@@ -203,7 +184,6 @@ go 1.21
 		}
 	}
 
-	// Verify the generated code structure matches string-based enum output
 	if !strings.Contains(generatedStr, "var _ColorValues = map[string]Color{") {
 		t.Error("Generated file should contain Color values map with string keys")
 	}
@@ -212,7 +192,6 @@ go 1.21
 		t.Error("Generated file should contain GetColor function with string parameter")
 	}
 
-	// Verify the function contains the correct return statement
 	if !strings.Contains(generatedStr, "val, ok := _ColorValues[x]") {
 		t.Error("Generated file should contain correct map lookup")
 	}
@@ -221,13 +200,13 @@ go 1.21
 	}
 
 	// Verify the map contains the expected mappings (string values as keys, names as values)
-	if !strings.Contains(generatedStr, `"red": Red`) {
+	if !regexp.MustCompile(`"red":\s+Red`).MatchString(generatedStr) {
 		t.Error("Generated file should map \"red\" to Red")
 	}
-	if !strings.Contains(generatedStr, `"green": Green`) {
+	if !regexp.MustCompile(`"green":\s+Green`).MatchString(generatedStr) {
 		t.Error("Generated file should map \"green\" to Green")
 	}
-	if !strings.Contains(generatedStr, `"blue": Blue`) {
+	if !regexp.MustCompile(`"blue":\s+Blue`).MatchString(generatedStr) {
 		t.Error("Generated file should map \"blue\" to Blue")
 	}
 }
