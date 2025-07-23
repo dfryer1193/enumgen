@@ -37,11 +37,11 @@ func (g *Generator) generate(typeName string, values []Value) {
 	baseTypeName := values[0].info.Name() // All the values are the same type
 	g.Printf("var _%sValues = map[%s]%s{", typeName, baseTypeName, typeName)
 	for _, v := range values {
-		actualVal := v.value.ExactString() // This value is quoted
-		g.Printf("%s: %s,", actualVal, v.name)
+		actualVal := v.value.ExactString()
+		g.Printf("\n\t%s: %s,", actualVal, v.name)
 	}
-	g.Printf("}\n")
-
+	g.Printf("\n}")
+	g.Printf("\n")
 	g.Printf("\nfunc Get%s(x %s) (%s, bool) {", typeName, baseTypeName, typeName)
 	g.Printf("\n\tval, ok := _%sValues[x]", typeName)
 	g.Printf("\n\treturn val, ok")
