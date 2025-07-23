@@ -43,9 +43,9 @@ func (g *Generator) generate(typeName string, values []Value) {
 	g.Printf("}\n")
 
 	g.Printf("\nfunc Get%s(x %s) (%s, bool) {", typeName, baseTypeName, typeName)
-	g.Printf("\tval, ok := _%sValues[x]", typeName)
-	g.Printf("\t return val, ok")
-	g.Printf("\n}")
+	g.Printf("\n\tval, ok := _%sValues[x]", typeName)
+	g.Printf("\n\treturn val, ok")
+	g.Printf("\n}\n")
 }
 
 func (g *Generator) format() []byte {
@@ -301,7 +301,7 @@ func findValues(typeName string, pkg *Package) []Value {
 		file.values = nil
 		if file.file != nil {
 			ast.Inspect(file.file, file.genDecl)
-			values = file.values
+			values = append(values, file.values...)
 		}
 	}
 
