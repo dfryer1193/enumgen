@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -152,15 +153,15 @@ go 1.21
 		t.Error("Generated file should contain ErrorCode values map with string keys")
 	}
 
-	if !strings.Contains(generatedStr, `"NOT_FOUND": NotFound`) {
+	if !regexp.MustCompile(`"NOT_FOUND":\s+NotFound`).MatchString(generatedStr) {
 		t.Error("Generated file should map \"NOT_FOUND\" to NotFound")
 	}
 
-	if !strings.Contains(generatedStr, `"UNAUTHORIZED": Unauthorized`) {
+	if !regexp.MustCompile(`"UNAUTHORIZED":\s+Unauthorized`).MatchString(generatedStr) {
 		t.Error("Generated file should map \"UNAUTHORIZED\" to Unauthorized")
 	}
 
-	if !strings.Contains(generatedStr, `"INTERNAL_SERVER_ERROR": ServerError`) {
+	if !regexp.MustCompile(`"INTERNAL_SERVER_ERROR":\s+ServerError`).MatchString(generatedStr) {
 		t.Error("Generated file should map \"INTERNAL_SERVER_ERROR\" to ServerError")
 	}
 
