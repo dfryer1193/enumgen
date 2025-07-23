@@ -150,10 +150,6 @@ func Usage() {
 func main() {
 	flag.Usage = Usage
 	flag.Parse()
-	if len(flag.Args()) == 0 {
-		flag.Usage()
-		os.Exit(2)
-	}
 
 	types := strings.Split(*typeNames, ",")
 
@@ -184,7 +180,6 @@ func main() {
 }
 
 func generateAll(pkgs []*Package, types []string, dir string) {
-
 	for _, pkg := range pkgs {
 		g := Generator{
 			pkg: pkg,
@@ -194,7 +189,6 @@ func generateAll(pkgs []*Package, types []string, dir string) {
 		g.Printf("\n")
 		g.Printf("package %s", g.pkg.name)
 		g.Printf("\n")
-		g.Printf("import \"strconv\"\n")
 
 		var foundTypes, remainingTypes []string
 		for _, typeName := range types {
