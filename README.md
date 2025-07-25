@@ -46,3 +46,33 @@ func GetMyEnum(x int) (MyEnum, bool) {
         return v, ok
 }
 ```
+
+For a string-typed enum, the generated file will have the following content:
+
+```go
+package foo
+
+//go:generate enumgen -type=MyEnum
+type MyEnum string
+
+const (
+    A MyEnum = "A"
+    B MyEnum = "B"
+    C MyEnum = "C"
+)
+```
+
+```go
+package foo
+
+var _MyEnumValues = map[string]MyEnum{
+        "A": A,
+        "B": B,
+        "C": C,
+}
+
+func GetMyEnum(x string) (MyEnum, bool) {
+        v, ok := _MyEnumValues[x]
+        return v, ok
+}
+```
